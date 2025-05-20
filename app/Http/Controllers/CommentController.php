@@ -6,17 +6,11 @@ use App\Models\Comment;
 use App\Models\Problem;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 
 class CommentController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-    
     /**
      * Display a listing of comments for a specific problem.
      *
@@ -25,10 +19,16 @@ class CommentController extends Controller
      */
     public function index(Problem $problem): View
     {
+        // Add logging for debugging
+        Log::info('Accessing comments for problem: ' . $problem->id);
+        
         $comments = $problem->comments()
             ->with('user')
             ->latest()
             ->get();
+        
+        // Add logging for number of comments found
+        Log::info('Found ' . $comments->count() . ' comments for problem ' . $problem->id);
         
         return view('comments.index', [
             'problem' => $problem,
@@ -56,6 +56,8 @@ class CommentController extends Controller
         ]);
         
         $comment->save();
+        
+        Log::info('New comment created for problem ' . $problem->id . ' by user ' . auth()->id());
         
         return redirect()->route('comments.index', $problem)
             ->with('success', 'Comment posted successfully.');

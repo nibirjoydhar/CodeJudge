@@ -21,4 +21,15 @@ class ProblemListController extends Controller
             'problems' => $problems
         ]);
     }
+    
+    /**
+     * Display the specified problem.
+     *
+     * @param Problem $problem
+     * @return View
+     */
+    public function show(Problem $problem): View
+    {
+        return view('problems.show', compact('problem'));
+    }
 } 

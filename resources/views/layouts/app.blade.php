@@ -13,6 +13,11 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        
+        <!-- Alpine.js x-cloak -->
+        <style>
+            [x-cloak] { display: none !important; }
+        </style>
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
@@ -32,5 +37,19 @@
                 {{ $slot }}
             </main>
         </div>
+        
+        <script>
+            document.addEventListener('click', function(event) {
+                const dropdown = document.getElementById('userDropdown');
+                const button = document.querySelector('button[onclick*="userDropdown"]');
+                
+                if (dropdown && dropdown.style.display !== 'none' && 
+                    !dropdown.contains(event.target) && 
+                    event.target !== button && 
+                    !button.contains(event.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        </script>
     </body>
 </html>

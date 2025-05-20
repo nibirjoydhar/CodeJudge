@@ -34,7 +34,7 @@ class SubmissionController extends Controller
     /**
      * Show the form for creating a new submission.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
         $problems = Problem::all();
         $languages = [
@@ -42,8 +42,10 @@ class SubmissionController extends Controller
             ['id' => 71, 'name' => 'Python'],
             ['id' => 62, 'name' => 'Java'],
         ];
+        
+        $selectedProblemId = $request->query('problem_id');
 
-        return view('submissions.create', compact('problems', 'languages'));
+        return view('submissions.create', compact('problems', 'languages', 'selectedProblemId'));
     }
 
     /**
@@ -60,12 +62,21 @@ class SubmissionController extends Controller
         $problem = Problem::findOrFail($validated['problem_id']);
         $testCases = $problem->getFormattedTestCasesAttribute();
 
-        // Evaluate code using Judge0 service
-        $status = $this->judge0Service->evaluateCode(
-            $validated['code'], 
-            $validated['language_id'], 
-            $testCases
-        );
+        // Check if we're in a local/development environment or if the Judge0 integration is unavailable
+        if (app()->environment('local') && (
+            empty(env('JUDGE0_API_KEY')) || 
+            str_contains(env('APP_DEBUG', false), 'true')
+        )) {
+            // Simulate code evaluation in development environment
+            $status = 'Simulated Accepted';
+        } else {
+            // Use real Judge0 service for production
+            $status = $this->judge0Service->evaluateCode(
+                $validated['code'], 
+                $validated['language_id'], 
+                $testCases
+            );
+        }
 
         // Create submission record
         $submission = Submission::create([

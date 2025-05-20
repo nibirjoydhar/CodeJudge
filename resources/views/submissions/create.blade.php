@@ -19,7 +19,7 @@
                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                 <option value="">Select a problem</option>
                                 @foreach ($problems as $problem)
-                                    <option value="{{ $problem->id }}" {{ old('problem_id') == $problem->id ? 'selected' : '' }}>
+                                    <option value="{{ $problem->id }}" {{ (old('problem_id') == $problem->id || $selectedProblemId == $problem->id) ? 'selected' : '' }}>
                                         {{ $problem->title }}
                                     </option>
                                 @endforeach

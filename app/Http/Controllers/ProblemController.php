@@ -10,14 +10,6 @@ use Illuminate\Support\Facades\Validator;
 class ProblemController extends Controller
 {
     /**
-     * Create a new controller instance.
-     */
-    public function __construct()
-    {
-        $this->middleware(['auth', 'role:admin']);
-    }
-
-    /**
      * Display a listing of the problems.
      */
     public function index()

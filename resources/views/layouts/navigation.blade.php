@@ -21,14 +21,31 @@
                     <x-nav-link :href="route('problems.list')" :active="request()->routeIs('problems.list')">
                         {{ __('Problems') }}
                     </x-nav-link>
+                    
+                    @if(Auth::user()->isAdmin())
+                        <!-- Admin Only Links -->
+                        <x-nav-link :href="route('admin.problems.index')" :active="request()->routeIs('admin.problems.*')">
+                            {{ __('Manage Problems') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.problems.create')" :active="request()->routeIs('admin.problems.create')">
+                            {{ __('Upload Problem') }}
+                        </x-nav-link>
+                    @endif
+                    
+                    @if(Auth::user()->isContestant())
+                        <!-- Contestant Only Links -->
+                        <x-nav-link :href="route('submissions.index')" :active="request()->routeIs('submissions.index')">
+                            {{ __('My Submissions') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                <div class="relative">
+                    <div>
+                        <button onclick="document.getElementById('userDropdown').style.display = document.getElementById('userDropdown').style.display === 'none' ? 'block' : 'none'" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
                             <div>{{ Auth::user()->name }}</div>
 
                             <div class="ms-1">
@@ -36,26 +53,30 @@
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
                             </div>
+
                         </button>
-                    </x-slot>
+                    </div>
 
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
+                    <div id="userDropdown" 
+                         style="display: none;"
+                         class="absolute right-0 z-50 mt-2 w-48 rounded-md shadow-lg origin-top-right">
+                        <div class="rounded-md ring-1 ring-black ring-opacity-5 py-1 bg-white">
+                            <a href="{{ route('profile.edit') }}" class="block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out">
+                                {{ __('Profile') }}
+                            </a>
 
-                        <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
-                        </form>
-                    </x-slot>
-                </x-dropdown>
+                            <!-- Authentication -->
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <a href="{{ route('logout') }}"
+                                   class="block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out"
+                                   onclick="event.preventDefault(); this.closest('form').submit();">
+                                    {{ __('Log Out') }}
+                                </a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Hamburger -->
@@ -82,6 +103,23 @@
             <x-responsive-nav-link :href="route('problems.list')" :active="request()->routeIs('problems.list')">
                 {{ __('Problems') }}
             </x-responsive-nav-link>
+            
+            @if(Auth::user()->isAdmin())
+                <!-- Admin Only Links (Mobile) -->
+                <x-responsive-nav-link :href="route('admin.problems.index')" :active="request()->routeIs('admin.problems.*')">
+                    {{ __('Manage Problems') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.problems.create')" :active="request()->routeIs('admin.problems.create')">
+                    {{ __('Upload Problem') }}
+                </x-responsive-nav-link>
+            @endif
+            
+            @if(Auth::user()->isContestant())
+                <!-- Contestant Only Links (Mobile) -->
+                <x-responsive-nav-link :href="route('submissions.index')" :active="request()->routeIs('submissions.index')">
+                    {{ __('My Submissions') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

@@ -45,5 +45,6 @@ Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leade
 
 // Problems List (accessible to authenticated users)
 Route::middleware('auth')->get('/problems', [ProblemListController::class, 'index'])->name('problems.list');
+Route::middleware('auth')->get('/problems/{problem}', [ProblemListController::class, 'show'])->name('problems.show');
 
 require __DIR__.'/auth.php';
