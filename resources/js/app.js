@@ -1,4 +1,5 @@
 import './bootstrap';
+import '../css/index.css'; // adjust the path
 
 import Alpine from 'alpinejs';
 

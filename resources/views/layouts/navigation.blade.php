@@ -6,7 +6,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                       <img src="{{ asset('storage/logo/header_logo.png') }}" alt="{{ config('app.name', 'Laravel') }}" style="height: 142px; width: auto; display: block;">
                     </a>
                 </div>
 
@@ -62,7 +62,7 @@
                          class="absolute right-0 z-50 mt-2 w-48 rounded-md shadow-lg origin-top-right">
                         <div class="rounded-md ring-1 ring-black ring-opacity-5 py-1 bg-white">
                             <a href="{{ route('profile.edit') }}" class="block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out">
-                                {{ __('Profile') }}
+                                {{ __('Edit Profile') }}
                             </a>
 
                             <!-- Authentication -->
@@ -131,7 +131,7 @@
 
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
+                    {{ __('Edit Profile') }}
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->

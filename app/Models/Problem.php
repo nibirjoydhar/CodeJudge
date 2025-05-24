@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\User;
+use App\Models\Submission;
 
 class Problem extends Model
 {
@@ -49,5 +51,28 @@ class Problem extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
+    }
+
+    /**
+     * Get the submissions for the problem.
+     */
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(Submission::class);
+    }
+
+    /**
+     * Check if the problem is solved by a specific user
+     */
+    public function isSolvedByUser(?User $user = null): bool
+    {
+        if (!$user) {
+            return false;
+        }
+
+        return $this->submissions()
+            ->where('user_id', $user->id)
+            ->where('status', 'Accepted')
+            ->exists();
     }
 } 

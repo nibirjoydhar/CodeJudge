@@ -117,7 +117,7 @@
                                     </div>
 
                                     <div class="mt-8 border-t pt-8">
-                                        <h3 class="text-xl font-bold mb-6 text-center">Submit Your Solution</h3>
+                                        <h3 class="text-xl font-bold mb-6 text-center mt-4 text-blue-500">Submit Your Solution</h3>
                                         <form method="POST" action="{{ route('submissions.store') }}">
                                             @csrf
 

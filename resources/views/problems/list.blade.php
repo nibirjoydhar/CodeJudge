@@ -20,6 +20,9 @@
                                         Title
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Actions
                                     </th>
                                 </tr>
@@ -34,6 +37,17 @@
                                             <a href="{{ route('problems.show', $problem) }}" class="text-indigo-600 hover:text-indigo-900">
                                                 {{ $problem->title }}
                                             </a>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @if($problem->isSolvedByUser(auth()->user()))
+                                                <span class="px-2 inline-flex text-xs leading-5 font-medium rounded-full bg-green-100 text-green-800">
+                                                    Solved
+                                                </span>
+                                            @else
+                                                <span class="px-2 inline-flex text-xs leading-5 font-medium rounded-full bg-gray-100 text-gray-800">
+                                                    Unsolved
+                                                </span>
+                                            @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex space-x-3">
