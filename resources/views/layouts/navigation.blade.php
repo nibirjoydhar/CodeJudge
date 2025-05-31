@@ -21,6 +21,9 @@
                     <x-nav-link :href="route('problems.list')" :active="request()->routeIs('problems.list')">
                         {{ __('Problems') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('contests.index')" :active="request()->routeIs('contests.*')">
+                        {{ __('Contests') }}
+                    </x-nav-link>
                     
                     @if(Auth::user()->isAdmin())
                         <!-- Admin Only Links -->
@@ -102,6 +105,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('problems.list')" :active="request()->routeIs('problems.list')">
                 {{ __('Problems') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('contests.index')" :active="request()->routeIs('contests.*')">
+                {{ __('Contests') }}
             </x-responsive-nav-link>
             
             @if(Auth::user()->isAdmin())

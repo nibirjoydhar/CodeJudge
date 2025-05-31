@@ -6,6 +6,7 @@ use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProblemListController;
+use App\Http\Controllers\ContestController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect the homepage to problems
@@ -46,5 +47,15 @@ Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leade
 // Problems List (accessible to authenticated users)
 Route::middleware('auth')->get('/problems', [ProblemListController::class, 'index'])->name('problems.list');
 Route::middleware('auth')->get('/problems/{problem}', [ProblemListController::class, 'show'])->name('problems.show');
+
+// Contest routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/contests', [ContestController::class, 'index'])->name('contests.index');
+    Route::get('/contests/create', [ContestController::class, 'create'])->name('contests.create');
+    Route::post('/contests', [ContestController::class, 'store'])->name('contests.store');
+    Route::get('/contests/{contest}', [ContestController::class, 'show'])->name('contests.show');
+    Route::post('/contests/{contest}/join', [ContestController::class, 'join'])->name('contests.join');
+    Route::post('/contests/{contest}/problems/{problem}/submit', [ContestController::class, 'submit'])->name('contests.submit');
+});
 
 require __DIR__.'/auth.php';
