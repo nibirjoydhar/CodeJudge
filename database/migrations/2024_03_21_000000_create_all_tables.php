@@ -130,11 +130,22 @@ return new class extends Migration
         Schema::table('submissions', function (Blueprint $table) {
             $table->foreignId('contest_id')->nullable()->constrained()->onDelete('set null');
         });
+
+        // Sessions table
+        Schema::create('sessions', function (Blueprint $table) {
+            $table->string('id')->primary();
+            $table->foreignId('user_id')->nullable()->index();
+            $table->string('ip_address', 45)->nullable();
+            $table->text('user_agent')->nullable();
+            $table->text('payload');
+            $table->integer('last_activity')->index();
+        });
     }
 
     public function down()
     {
         // Drop tables in reverse order to avoid foreign key constraints
+        Schema::dropIfExists('sessions');
         Schema::table('submissions', function (Blueprint $table) {
             $table->dropForeign(['contest_id']);
             $table->dropColumn('contest_id');

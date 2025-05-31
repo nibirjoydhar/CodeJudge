@@ -1,0 +1,9 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" rx="12" fill="#263238"/>
+  <!-- Code brackets -->
+  <path d="M20 20 L14 32 L20 44" stroke="#00BCD4" stroke-width="3" fill="none"/>
+  <path d="M44 20 L50 32 L44 44" stroke="#00BCD4" stroke-width="3" fill="none"/>
+  <!-- Gavel shape in center -->
+  <rect x="28" y="28" width="8" height="4" fill="#4CAF50" transform="rotate(-20 32 30)"/>
+  <line x1="32" y1="32" x2="40" y2="40" stroke="#4CAF50" stroke-width="2"/>
+</svg>

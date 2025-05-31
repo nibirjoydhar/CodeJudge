@@ -1,0 +1,19 @@
+<svg width="220" height="50" viewBox="0 0 220 50" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .symbol { fill: none; stroke: #00BCD4; stroke-width: 3; stroke-linecap: round; }
+    .handle { stroke: #4CAF50; stroke-width: 2; }
+    .text { font-family: 'Fira Code', monospace; font-size: 26px; font-weight: bold; fill: #263238; }
+  </style>
+
+  <!-- Left Icon: Code Bracket + Abstract Gavel -->
+  <!-- Brackets -->
+  <path d="M10 15 L4 25 L10 35" class="symbol" />
+  <path d="M40 15 L46 25 L40 35" class="symbol" />
+  
+  <!-- Gavel -->
+  <rect x="22" y="22" width="10" height="5" transform="rotate(-20 27 24.5)" fill="#4CAF50"/>
+  <line x1="27" y1="25" x2="34" y2="33" class="handle" />
+
+  <!-- Text -->
+  <text x="60" y="34" class="text">CodeJudge</text>
+</svg>

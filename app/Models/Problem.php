@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;                                                                                                                                                                                                                                                                                                                                                       
 use App\Models\User;
 use App\Models\Submission;
 
@@ -20,7 +21,14 @@ class Problem extends Model
     protected $fillable = [
         'title',
         'description',
-        'test_cases',
+        'input_format',
+        'output_format',
+        'constraints',
+        'sample_input',
+        'sample_output',
+        'explanation',
+        'difficulty',
+        'created_by'
     ];
 
     /**
@@ -74,5 +82,15 @@ class Problem extends Model
             ->where('user_id', $user->id)
             ->where('status', 'Accepted')
             ->exists();
+    }
+
+    public function testCases(): HasMany
+    {
+        return $this->hasMany(TestCase::class);
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 } 
