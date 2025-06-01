@@ -27,7 +27,8 @@ class Contest extends Model
 
     public function problems(): BelongsToMany
     {
-        return $this->belongsToMany(Problem::class, 'contest_problems');
+        return $this->belongsToMany(Problem::class, 'contest_problems')
+            ->withTimestamps();
     }
 
     public function participants(): BelongsToMany
@@ -77,19 +78,14 @@ class Contest extends Model
     public function canAccess(User $user)
     {
         // Contest creator can always access
-        if ($user->id === $this->created_by) {
+        if ($user->id === $this->created_by || $user->role === 'admin') {
             return true;
         }
 
         // Check if user is a participant
         $isParticipant = $this->participants()->where('user_id', $user->id)->exists();
 
-        // If contest hasn't started, participants can see basic info but not problems
-        if (!$this->hasStarted()) {
-            return $isParticipant;
-        }
-
-        // If contest is running or has ended, participants can access everything
+        // Participants can access everything
         return $isParticipant;
     }
 

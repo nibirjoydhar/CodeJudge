@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Problem;
+use App\Models\TestCase;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Validator;
 
 class ProblemController extends Controller
 {
@@ -14,7 +15,7 @@ class ProblemController extends Controller
      */
     public function index()
     {
-        $problems = Problem::all();
+        $problems = Problem::withCount('testCases')->get();
         return view('problems.index', compact('problems'));
     }
 
@@ -34,18 +35,35 @@ class ProblemController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'test_cases' => ['required', function ($attribute, $value, $fail) {
-                if (!is_array(json_decode($value, true))) {
-                    $fail('The '.$attribute.' must be a valid JSON array.');
-                }
-            }],
+            'test_cases' => ['required', 'array', 'min:1'],
+            'test_cases.*.input' => 'required|string',
+            'test_cases.*.expected_output' => 'required|string',
         ]);
 
-        $validated['test_cases'] = json_decode($validated['test_cases'], true);
-        Problem::create($validated);
+        DB::beginTransaction();
+        try {
+            $problem = Problem::create([
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'created_by' => auth()->id(),
+            ]);
 
-        return redirect()->route('admin.problems.index')
-            ->with('success', 'Problem created successfully');
+            foreach ($validated['test_cases'] as $testCase) {
+                $problem->testCases()->create([
+                    'input' => $testCase['input'],
+                    'expected_output' => $testCase['expected_output'],
+                    'is_sample' => $testCase['is_sample'] ?? false,
+                    'points' => $testCase['points'] ?? 0,
+                ]);
+            }
+
+            DB::commit();
+            return redirect()->route('admin.problems.index')
+                ->with('success', 'Problem created successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->withErrors(['error' => 'Failed to create problem. ' . $e->getMessage()]);
+        }
     }
 
     /**
@@ -53,6 +71,7 @@ class ProblemController extends Controller
      */
     public function edit(Problem $problem)
     {
+        $problem->load('testCases');
         return view('problems.edit', compact('problem'));
     }
 
@@ -64,18 +83,40 @@ class ProblemController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'test_cases' => ['required', function ($attribute, $value, $fail) {
-                if (!is_array(json_decode($value, true))) {
-                    $fail('The '.$attribute.' must be a valid JSON array.');
-                }
-            }],
+            'test_cases' => ['required', 'array', 'min:1'],
+            'test_cases.*.input' => 'required|string',
+            'test_cases.*.expected_output' => 'required|string',
+            'test_cases.*.is_sample' => 'nullable|boolean',
+            'test_cases.*.points' => 'nullable|integer|min:0'
         ]);
 
-        $validated['test_cases'] = json_decode($validated['test_cases'], true);
-        $problem->update($validated);
+        DB::beginTransaction();
+        try {
+            $problem->update([
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+            ]);
 
-        return redirect()->route('admin.problems.index')
-            ->with('success', 'Problem updated successfully');
+            // Delete existing test cases
+            $problem->testCases()->delete();
+
+            // Create new test cases
+            foreach ($validated['test_cases'] as $testCase) {
+                $problem->testCases()->create([
+                    'input' => $testCase['input'],
+                    'expected_output' => $testCase['expected_output'],
+                    'is_sample' => isset($testCase['is_sample']) && $testCase['is_sample'] == '1',
+                    'points' => $testCase['points'] ?? 0
+                ]);
+            }
+
+            DB::commit();
+            return redirect()->route('admin.problems.index')
+                ->with('success', 'Problem updated successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->withErrors(['error' => 'Failed to update problem. ' . $e->getMessage()]);
+        }
     }
 
     /**

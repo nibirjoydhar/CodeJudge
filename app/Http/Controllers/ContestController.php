@@ -9,10 +9,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Jobs\EvaluateSubmission;
+use App\Services\SubmissionCacheService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class ContestController extends Controller
 {
+    protected SubmissionCacheService $cacheService;
+
+    public function __construct(SubmissionCacheService $cacheService)
+    {
+        $this->cacheService = $cacheService;
+    }
+
     public function index()
     {
         $contests = Contest::with('creator')
@@ -150,7 +159,7 @@ class ContestController extends Controller
         }
 
         // Check if problem belongs to contest
-        if (!$contest->problems()->where('id', $problem->id)->exists()) {
+        if (!$contest->problems()->where('problems.id', $problem->id)->exists()) {
             return redirect()->route('contests.show', $contest)
                 ->with('error', 'This problem is not part of the contest.');
         }
@@ -169,7 +178,7 @@ class ContestController extends Controller
         }
 
         // Check if problem belongs to contest
-        if (!$contest->problems()->where('id', $problem->id)->exists()) {
+        if (!$contest->problems()->where('problems.id', $problem->id)->exists()) {
             return redirect()->route('contests.show', $contest)
                 ->with('error', 'This problem is not part of the contest.');
         }
@@ -189,9 +198,16 @@ class ContestController extends Controller
 
         // Validate submission
         $validated = $request->validate([
-            'language_id' => 'required|integer',
+            'language_id' => 'required|integer|in:54,71,62',
             'code' => 'required|string'
         ]);
+
+        // Check if we have a cached result for this submission
+        $cachedResult = $this->cacheService->getCachedResult(
+            $validated['code'],
+            $validated['language_id'],
+            $problem->id
+        );
 
         // Create submission
         $submission = new Submission([
@@ -200,15 +216,123 @@ class ContestController extends Controller
             'contest_id' => $contest->id,
             'language_id' => $validated['language_id'],
             'code' => $validated['code'],
-            'status' => 'Pending'
+            'status' => $cachedResult ? $cachedResult['status'] : 'Pending',
+            'points' => $cachedResult ? $cachedResult['points'] : 0
         ]);
 
         $submission->save();
 
-        // Dispatch job to evaluate submission
-        EvaluateSubmission::dispatch($submission);
+        if (!$cachedResult) {
+            // Dispatch job to evaluate submission
+            EvaluateSubmission::dispatch($submission);
+        }
+
+        return redirect()->route('contests.problems.submit', [$contest, $problem])
+            ->with('success', 'Solution submitted successfully. ' . 
+                ($cachedResult ? 'Result: ' . $cachedResult['status'] : 'Please wait for the evaluation result.'));
+    }
+
+    public function problems(Contest $contest)
+    {
+        try {
+            $user = auth()->user();
+            
+            if (!$contest->canAccess($user)) {
+                return redirect()->route('contests.index')
+                    ->with('error', 'You do not have access to this contest.');
+            }
+
+            $problems = $contest->problems()
+                ->orderBy('contest_problems.created_at')
+                ->get();
+
+            Log::info('Contest problems accessed', [
+                'contest_id' => $contest->id,
+                'user_id' => $user->id,
+                'problem_count' => $problems->count()
+            ]);
+
+            return view('contests.problems.index', compact('contest', 'problems'));
+        } catch (\Exception $e) {
+            Log::error('Error accessing contest problems', [
+                'contest_id' => $contest->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->route('contests.show', $contest)
+                ->with('error', 'There was an error loading the problems. Please try again.');
+        }
+    }
+
+    public function submissions(Contest $contest)
+    {
+        $user = auth()->user();
+        
+        if (!$contest->canAccess($user)) {
+            return redirect()->route('contests.index')
+                ->with('error', 'You do not have access to this contest.');
+        }
+
+        $submissions = $contest->submissions()
+            ->with(['user', 'problem'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('contests.submissions', compact('contest', 'submissions'));
+    }
+
+    public function standings(Contest $contest)
+    {
+        $user = auth()->user();
+        
+        if (!$contest->canAccess($user)) {
+            return redirect()->route('contests.index')
+                ->with('error', 'You do not have access to this contest.');
+        }
+
+        $rankings = $contest->getRankings();
+        return view('contests.standings', compact('contest', 'rankings'));
+    }
+
+    public function edit(Contest $contest)
+    {
+        $problems = Problem::all();
+        $selectedProblems = $contest->problems->pluck('id')->toArray();
+        
+        return view('contests.edit', compact('contest', 'problems', 'selectedProblems'));
+    }
+
+    public function update(Request $request, Contest $contest)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'start_time' => 'required|date',
+            'end_time' => 'required|date|after:start_time',
+            'password' => 'nullable|string|min:6',
+            'problems' => 'required|array|min:1',
+            'problems.*' => 'exists:problems,id'
+        ]);
+
+        // Convert times to Bangladesh timezone
+        $startTime = Carbon::parse($validated['start_time'])->setTimezone('Asia/Dhaka');
+        $endTime = Carbon::parse($validated['end_time'])->setTimezone('Asia/Dhaka');
+
+        $contest->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'start_time' => $startTime,
+            'end_time' => $endTime,
+        ]);
+
+        if (!empty($validated['password'])) {
+            $contest->update(['password' => Hash::make($validated['password'])]);
+        }
+
+        $contest->problems()->sync($validated['problems']);
 
         return redirect()->route('contests.show', $contest)
-            ->with('success', 'Solution submitted successfully.');
+            ->with('success', 'Contest updated successfully!');
     }
 } 

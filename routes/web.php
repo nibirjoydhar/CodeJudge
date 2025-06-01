@@ -21,7 +21,6 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 // Admin Routes
@@ -55,15 +54,32 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/contests', [ContestController::class, 'store'])->name('contests.store');
     Route::get('/contests/{contest}', [ContestController::class, 'show'])->name('contests.show');
     Route::post('/contests/{contest}/join', [ContestController::class, 'join'])->name('contests.join');
-    Route::post('/contests/{contest}/problems/{problem}/submit', [ContestController::class, 'submit'])->name('contests.submit');
     
     // Contest Problem Routes
+    Route::get('/contests/{contest}/problems', [ContestController::class, 'problems'])
+        ->name('contests.problems.index');
     Route::get('/contests/{contest}/problems/{problem}', [ContestController::class, 'showProblem'])
         ->name('contests.problems.show');
     Route::get('/contests/{contest}/problems/{problem}/submit', [ContestController::class, 'showSubmitForm'])
-        ->name('contests.submit');
+        ->name('contests.problems.submit');
     Route::post('/contests/{contest}/problems/{problem}/submit', [ContestController::class, 'submitSolution'])
-        ->name('contests.submit.store');
+        ->name('contests.problems.submit.store');
+        
+    // Contest Submissions Route
+    Route::get('/contests/{contest}/submissions', [ContestController::class, 'submissions'])
+        ->name('contests.submissions');
+        
+    // Contest Standings Route
+    Route::get('/contests/{contest}/standings', [ContestController::class, 'standings'])
+        ->name('contests.standings');
+        
+    // Contest Edit Route (Admin only)
+    Route::middleware(['role:admin'])->group(function () {
+        Route::get('/contests/{contest}/edit', [ContestController::class, 'edit'])
+            ->name('contests.edit');
+        Route::put('/contests/{contest}', [ContestController::class, 'update'])
+            ->name('contests.update');
+    });
 });
 
 require __DIR__.'/auth.php';

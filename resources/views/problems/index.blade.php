@@ -35,7 +35,7 @@
                                     <tr class="border-b hover:bg-gray-50">
                                         <td class="py-2 px-4">{{ $problem->id }}</td>
                                         <td class="py-2 px-4">{{ $problem->title }}</td>
-                                        <td class="py-2 px-4">{{ count($problem->formatted_test_cases) }}</td>
+                                        <td class="py-2 px-4">{{ $problem->test_cases_count }}</td>
                                         <td class="py-2 px-4 text-center">
                                             <div class="flex justify-center space-x-2">
                                                 <a href="{{ route('admin.problems.edit', $problem) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded">

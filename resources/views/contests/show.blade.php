@@ -20,6 +20,8 @@
         </div>
     </x-slot>
 
+    <x-contest-navigation :contest="$contest" />
+
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -76,7 +78,7 @@
                                                         </a>
                                                         @if($status === 'Running')
                                                             <span class="mx-2">|</span>
-                                                            <a href="{{ route('contests.submit', [$contest, $problem]) }}"
+                                                            <a href="{{ route('contests.problems.submit', [$contest, $problem]) }}"
                                                                 class="text-green-600 hover:text-green-900 hover:underline">
                                                                 Submit Solution
                                                             </a>

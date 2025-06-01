@@ -38,16 +38,68 @@
 
                         <!-- Test Cases -->
                         <div class="mb-4">
-                            <label for="test_cases" class="block text-sm font-medium text-gray-700">Test Cases (JSON Format)</label>
-                            <textarea name="test_cases" id="test_cases" rows="6" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-mono @error('test_cases') border-red-500 @enderror" required>{{ old('test_cases', json_encode($problem->test_cases, JSON_PRETTY_PRINT)) }}</textarea>
-                            @error('test_cases')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                            <p class="text-gray-500 text-xs mt-1">Format: [{"input": "sample input", "output": "expected output"}, ...]</p>
+                            <label for="test_cases" class="block text-sm font-medium text-gray-700">Test Cases</label>
+                            <div id="test_cases_container" class="space-y-4">
+                                @foreach($problem->testCases as $index => $testCase)
+                                    <div class="test-case border rounded p-4 bg-gray-50">
+                                        <div class="mb-2">
+                                            <label class="block text-sm font-medium text-gray-700">Input</label>
+                                            <textarea name="test_cases[{{ $index }}][input]" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-mono bg-white" required>{{ $testCase->input }}</textarea>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="block text-sm font-medium text-gray-700">Expected Output</label>
+                                            <textarea name="test_cases[{{ $index }}][expected_output]" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-mono bg-white" required>{{ $testCase->expected_output }}</textarea>
+                                        </div>
+                                        <div class="flex items-center space-x-4">
+                                            <label class="inline-flex items-center">
+                                                <input type="checkbox" name="test_cases[{{ $index }}][is_sample]" value="1" {{ $testCase->is_sample ? 'checked' : '' }} class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                                <span class="ml-2 text-sm text-gray-600">Sample Test Case</span>
+                                            </label>
+                                            <div>
+                                                <label class="text-sm text-gray-600">Points</label>
+                                                <input type="number" name="test_cases[{{ $index }}][points]" value="{{ $testCase->points }}" min="0" class="ml-2 w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white">
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <button type="button" onclick="addTestCase()" class="mt-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Add Test Case
+                            </button>
                         </div>
 
+                        <script>
+                            function addTestCase() {
+                                const container = document.getElementById('test_cases_container');
+                                const index = container.children.length;
+                                const template = `
+                                    <div class="test-case border rounded p-4 bg-gray-50">
+                                        <div class="mb-2">
+                                            <label class="block text-sm font-medium text-gray-700">Input</label>
+                                            <textarea name="test_cases[\${index}][input]" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-mono bg-white" required></textarea>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="block text-sm font-medium text-gray-700">Expected Output</label>
+                                            <textarea name="test_cases[\${index}][expected_output]" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-mono bg-white" required></textarea>
+                                        </div>
+                                        <div class="flex items-center space-x-4">
+                                            <label class="inline-flex items-center">
+                                                <input type="checkbox" name="test_cases[\${index}][is_sample]" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                                <span class="ml-2 text-sm text-gray-600">Sample Test Case</span>
+                                            </label>
+                                            <div>
+                                                <label class="text-sm text-gray-600">Points</label>
+                                                <input type="number" name="test_cases[\${index}][points]" value="0" min="0" class="ml-2 w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white">
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                                container.insertAdjacentHTML('beforeend', template);
+                            }
+                        </script>
+
                         <div class="flex items-center justify-end mt-4">
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-yellow-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-yellow-700 focus:bg-yellow-700 active:bg-yellow-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                 {{ __('Update Problem') }}
                             </button>
                         </div>

@@ -28,7 +28,8 @@ class Problem extends Model
         'sample_output',
         'explanation',
         'difficulty',
-        'created_by'
+        'created_by',
+        'test_cases'
     ];
 
     /**
@@ -36,12 +37,9 @@ class Problem extends Model
      *
      * @return array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'test_cases' => 'json',
-        ];
-    }
+    protected $casts = [
+        'test_cases' => 'array',
+    ];
 
     /**
      * Get the formatted test cases.
@@ -84,6 +82,9 @@ class Problem extends Model
             ->exists();
     }
 
+    /**
+     * Get the test cases for the problem.
+     */
     public function testCases(): HasMany
     {
         return $this->hasMany(TestCase::class);

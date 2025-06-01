@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Problem;
 use App\Models\Submission;
 use App\Services\Judge0Service;
+use App\Services\SubmissionCacheService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -12,10 +13,12 @@ use Illuminate\Http\RedirectResponse;
 class SubmissionController extends Controller
 {
     protected Judge0Service $judge0Service;
+    protected SubmissionCacheService $cacheService;
 
-    public function __construct(Judge0Service $judge0Service)
+    public function __construct(Judge0Service $judge0Service, SubmissionCacheService $cacheService)
     {
         $this->judge0Service = $judge0Service;
+        $this->cacheService = $cacheService;
     }
 
     /**
@@ -59,6 +62,28 @@ class SubmissionController extends Controller
             'language_id' => 'required|in:54,71,62',
         ]);
 
+        // Check if we have a cached result for this submission
+        $cachedResult = $this->cacheService->getCachedResult(
+            $validated['code'],
+            $validated['language_id'],
+            $validated['problem_id']
+        );
+
+        if ($cachedResult) {
+            // Create submission record with cached result
+            $submission = Submission::create([
+                'user_id' => $request->user()->id,
+                'problem_id' => $validated['problem_id'],
+                'code' => $validated['code'],
+                'language_id' => $validated['language_id'],
+                'status' => $cachedResult['status'],
+                'points' => $cachedResult['points']
+            ]);
+
+            return redirect()->route('submissions.index')
+                ->with('success', 'Submission created successfully with status: ' . $cachedResult['status']);
+        }
+
         $problem = Problem::findOrFail($validated['problem_id']);
         $testCases = $problem->testCases()->get()->map(function($testCase) {
             return [
@@ -67,25 +92,24 @@ class SubmissionController extends Controller
             ];
         })->toArray();
 
-        // Check if we're in a local/development environment or if the Judge0 integration is unavailable
-        if (app()->environment('local') && (
-            empty(env('JUDGE0_API_KEY')) || 
-            str_contains(env('APP_DEBUG', false), 'true')
-        )) {
-            // Simulate code evaluation in development environment
-            $status = 'Simulated Accepted';
-            $points = 100; // Default points for simulated acceptance
-        } else {
-            // Use real Judge0 service for production
-            $status = $this->judge0Service->evaluateCode(
-                $validated['code'], 
-                $validated['language_id'], 
-                $testCases
-            );
-            
-            // Calculate points based on status
-            $points = $status === 'Accepted' ? 100 : 0;
-        }
+        // Use Judge0 service to evaluate the code
+        $status = $this->judge0Service->evaluateCode(
+            $validated['code'], 
+            $validated['language_id'], 
+            $testCases
+        );
+        
+        // Calculate points based on status
+        $points = $status === 'Accepted' ? 100 : 0;
+
+        // Cache the result for future use
+        $this->cacheService->cacheResult(
+            $validated['code'],
+            $validated['language_id'],
+            $validated['problem_id'],
+            $status,
+            $points
+        );
 
         // Create submission record
         $submission = Submission::create([
