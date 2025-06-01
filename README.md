@@ -32,7 +32,7 @@ CodeJudge is a robust online judge system that allows users to solve programming
 
 - **Backend**: Laravel PHP Framework
 - **Frontend**: Blade Templates with Tailwind CSS
-- **Database**: PostgreSQL
+- **Database**: MySQL
 - **Cache**: Redis
 - **Judge System**: Judge0 CE (Community Edition)
 - **Containerization**: Docker & Docker Compose
@@ -43,6 +43,7 @@ CodeJudge is a robust online judge system that allows users to solve programming
 - PHP >= 8.0
 - Composer
 - Node.js and npm
+- MySQL (via XAMPP or standalone)
 
 ## Installation
 
@@ -90,11 +91,11 @@ The system supports both RapidAPI's Judge0 service and local Judge0 CE instance.
 
 ### Database Configuration
 
-The system uses PostgreSQL for both the main application and Judge0 CE. Configure the following in your `.env` file:
+The system uses MySQL for the main application. Configure the following in your `.env` file:
 ```
-DB_CONNECTION=pgsql
+DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
-DB_PORT=5432
+DB_PORT=3306
 DB_DATABASE=codejudge
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
