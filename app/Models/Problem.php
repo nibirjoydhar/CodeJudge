@@ -28,8 +28,7 @@ class Problem extends Model
         'sample_output',
         'explanation',
         'difficulty',
-        'created_by',
-        'test_cases'
+        'created_by'
     ];
 
     /**
@@ -38,7 +37,7 @@ class Problem extends Model
      * @return array<string, string>
      */
     protected $casts = [
-        'test_cases' => 'array',
+        'created_by' => 'integer'
     ];
 
     /**
@@ -90,6 +89,9 @@ class Problem extends Model
         return $this->hasMany(TestCase::class);
     }
 
+    /**
+     * Get the creator of the problem.
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

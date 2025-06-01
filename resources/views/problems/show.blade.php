@@ -70,15 +70,49 @@
                         <div style="flex: 1; max-width: 100%; padding-right: 0;">
                             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                                 <div class="p-6 text-gray-900">                                 
+                                    <!-- Problem Description -->
                                     <div class="mb-8">
-                                        <h3 class="text-lg font-bold mb-4">Problem Description</h3>                                                         
+                                        <div class="flex items-center justify-between mb-4">
+                                            <h3 class="text-lg font-bold">Problem Description</h3>
+                                            <span class="px-3 py-1 text-sm font-semibold rounded-full 
+                                                {{ $problem->difficulty === 'easy' ? 'bg-green-100 text-green-800' : 
+                                                   ($problem->difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' : 
+                                                   'bg-red-100 text-red-800') }}">
+                                                {{ ucfirst($problem->difficulty) }}
+                                            </span>
+                                        </div>
                                         <div class="prose max-w-none">
                                             {!! nl2br(e($problem->description)) !!}                             
                                         </div>
-                                    </div>                      
+                                    </div>
 
+                                    <!-- Input Format -->
+                                    <div class="mb-8">
+                                        <h3 class="text-lg font-bold mb-4">Input Format</h3>
+                                        <div class="prose max-w-none bg-gray-50 p-4 rounded-lg">
+                                            {!! nl2br(e($problem->input_format)) !!}
+                                        </div>
+                                    </div>
+
+                                    <!-- Output Format -->
+                                    <div class="mb-8">
+                                        <h3 class="text-lg font-bold mb-4">Output Format</h3>
+                                        <div class="prose max-w-none bg-gray-50 p-4 rounded-lg">
+                                            {!! nl2br(e($problem->output_format)) !!}
+                                        </div>
+                                    </div>
+
+                                    <!-- Constraints -->
+                                    <div class="mb-8">
+                                        <h3 class="text-lg font-bold mb-4">Constraints</h3>
+                                        <div class="prose max-w-none bg-gray-50 p-4 rounded-lg font-mono">
+                                            {!! nl2br(e($problem->constraints)) !!}
+                                        </div>
+                                    </div>
+
+                                    <!-- Sample Test Cases -->
                                     <div class="mb-8">                                                                      
-                                        <h3 class="text-lg font-bold mb-4">Test Cases</h3>
+                                        <h3 class="text-lg font-bold mb-4">Sample Test Cases</h3>
                                         <div class="grid grid-cols-1 gap-6">
                                             @foreach($problem->testCases->where('is_sample', true) as $index => $test_case)
                                                 <div class="border rounded-lg shadow-sm overflow-hidden">
