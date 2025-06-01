@@ -4,182 +4,154 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ $contest->title }}
             </h2>
-            @if(!$isParticipant && !$contest->hasEnded())
-                <button onclick="document.getElementById('joinModal').classList.remove('hidden')" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Join Contest
-                </button>
-            @endif
+            <div class="flex items-center space-x-4">
+                <span class="px-3 py-1 rounded-full text-sm font-semibold
+                    {{ $status === 'Running' ? 'bg-green-100 text-green-800' : 
+                       ($status === 'Upcoming' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
+                    {{ $status }}
+                </span>
+                @if (!$isParticipant && $status !== 'Ended')
+                    <button onclick="document.getElementById('joinModal').classList.remove('hidden')" 
+                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Join Contest
+                    </button>
+                @endif
+            </div>
         </div>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <!-- Contest Info -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                <div class="p-6 bg-white border-b border-gray-200">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <h3 class="text-lg font-semibold mb-2">Contest Details</h3>
-                            <p><strong>Created by:</strong> {{ $contest->creator->name }}</p>
-                            <p><strong>Start Time:</strong> {{ $contest->start_time->format('Y-m-d H:i') }}</p>
-                            <p><strong>End Time:</strong> {{ $contest->end_time->format('Y-m-d H:i') }}</p>
-                            <p><strong>Status:</strong>
-                                @if($contest->hasEnded())
-                                    <span class="text-gray-600">Ended</span>
-                                @elseif($contest->isActive())
-                                    <span class="text-green-600">Active</span>
-                                @else
-                                    <span class="text-yellow-600">Upcoming</span>
-                                @endif
-                            </p>
-                        </div>
-                        @if($contest->description)
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <!-- Contest Details -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold mb-4">Contest Information</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <h3 class="text-lg font-semibold mb-2">Description</h3>
-                                <p class="text-gray-600">{{ $contest->description }}</p>
+                                <p class="text-gray-600">Start Time (Bangladesh):</p>
+                                <p class="font-medium">{{ $contest->start_time->setTimezone('Asia/Dhaka')->format('F j, Y, g:i a') }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600">End Time (Bangladesh):</p>
+                                <p class="font-medium">{{ $contest->end_time->setTimezone('Asia/Dhaka')->format('F j, Y, g:i a') }}</p>
+                            </div>
+                            <div class="md:col-span-2">
+                                <p class="text-gray-600">Description:</p>
+                                <p class="mt-1">{{ $contest->description }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if($isParticipant)
+                        @if($status === 'Upcoming')
+                            <div class="text-center py-8">
+                                <p class="text-gray-600">Contest has not started yet. Please wait until the start time.</p>
+                                <p class="mt-2 text-sm text-gray-500">
+                                    Starting in: {{ Carbon\Carbon::now()->diffForHumans($contest->start_time->setTimezone('Asia/Dhaka'), ['parts' => 2]) }}
+                                </p>
+                            </div>
+                        @else
+                            <!-- Problems Tab -->
+                            <div class="mb-8">
+                                <h3 class="text-lg font-semibold mb-4">Problems</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full bg-white">
+                                        <thead>
+                                            <tr class="bg-gray-100">
+                                                <th class="py-2 px-4 text-left">#</th>
+                                                <th class="py-2 px-4 text-left">Title</th>
+                                                <th class="py-2 px-4 text-center">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($contest->problems as $index => $problem)
+                                                <tr class="border-b">
+                                                    <td class="py-2 px-4">{{ chr(65 + $index) }}</td>
+                                                    <td class="py-2 px-4">{{ $problem->title }}</td>
+                                                    <td class="py-2 px-4 text-center">
+                                                        <a href="{{ route('contests.problems.show', [$contest, $problem]) }}" 
+                                                            class="text-blue-600 hover:text-blue-900 hover:underline">
+                                                            View Problem
+                                                        </a>
+                                                        @if($status === 'Running')
+                                                            <span class="mx-2">|</span>
+                                                            <a href="{{ route('contests.submit', [$contest, $problem]) }}"
+                                                                class="text-green-600 hover:text-green-900 hover:underline">
+                                                                Submit Solution
+                                                            </a>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Rankings Tab -->
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4">Rankings</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full bg-white">
+                                        <thead>
+                                            <tr class="bg-gray-100">
+                                                <th class="py-2 px-4 text-left">Rank</th>
+                                                <th class="py-2 px-4 text-left">Participant</th>
+                                                <th class="py-2 px-4 text-center">Solved</th>
+                                                <th class="py-2 px-4 text-center">Points</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($rankings as $index => $participant)
+                                                <tr class="border-b {{ $participant->id === auth()->id() ? 'bg-yellow-50' : '' }}">
+                                                    <td class="py-2 px-4">{{ $index + 1 }}</td>
+                                                    <td class="py-2 px-4">{{ $participant->name }}</td>
+                                                    <td class="py-2 px-4 text-center">{{ $participant->accepted_count }}</td>
+                                                    <td class="py-2 px-4 text-center">{{ $participant->total_points ?? 0 }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         @endif
-                    </div>
+                    @elseif($status === 'Ended')
+                        <div class="text-center py-8">
+                            <p class="text-gray-600">This contest has ended.</p>
+                        </div>
+                    @else
+                        <div class="text-center py-8">
+                            <p class="text-gray-600">Please join the contest to view problems and participate.</p>
+                        </div>
+                    @endif
                 </div>
             </div>
-
-            @if($isParticipant || $contest->hasEnded())
-                <!-- Problems and Rankings Tabs -->
-                <div x-data="{ tab: 'problems' }" class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="border-b border-gray-200">
-                        <nav class="flex -mb-px">
-                            <button @click="tab = 'problems'" :class="{ 'border-blue-500 text-blue-600': tab === 'problems' }" class="w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm">
-                                Problems
-                            </button>
-                            <button @click="tab = 'submissions'" :class="{ 'border-blue-500 text-blue-600': tab === 'submissions' }" class="w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm">
-                                Submissions
-                            </button>
-                            <button @click="tab = 'rankings'" :class="{ 'border-blue-500 text-blue-600': tab === 'rankings' }" class="w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm">
-                                Rankings
-                            </button>
-                        </nav>
-                    </div>
-
-                    <div class="p-6">
-                        <!-- Problems Tab -->
-                        <div x-show="tab === 'problems'">
-                            <div class="grid gap-4">
-                                @foreach($contest->problems as $problem)
-                                    <div class="border rounded-lg p-4">
-                                        <div class="flex justify-between items-start">
-                                            <div>
-                                                <h3 class="text-lg font-semibold">{{ $problem->title }}</h3>
-                                                <p class="text-sm text-gray-600">{{ Str::limit($problem->description, 200) }}</p>
-                                            </div>
-                                            @if($isParticipant && $contest->isActive())
-                                                <a href="{{ route('problems.show', $problem) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                                    Solve
-                                                </a>
-                                            @endif
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-
-                        <!-- Submissions Tab -->
-                        <div x-show="tab === 'submissions'" class="overflow-x-auto">
-                            @if($submissions->isEmpty())
-                                <p class="text-center text-gray-500">No submissions yet.</p>
-                            @else
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead>
-                                        <tr>
-                                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Problem</th>
-                                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Language</th>
-                                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Verdict</th>
-                                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        @foreach($submissions as $submission)
-                                            <tr>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $submission->user->name }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $submission->problem->title }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $submission->language }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                                    <span class="px-2 py-1 rounded text-sm
-                                                        @if($submission->verdict === 'Accepted') bg-green-200 text-green-800
-                                                        @elseif($submission->verdict === 'Wrong Answer') bg-red-200 text-red-800
-                                                        @else bg-yellow-200 text-yellow-800
-                                                        @endif">
-                                                        {{ $submission->verdict }}
-                                                    </span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $submission->created_at->format('Y-m-d H:i:s') }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            @endif
-                        </div>
-
-                        <!-- Rankings Tab -->
-                        <div x-show="tab === 'rankings'" class="overflow-x-auto">
-                            @if($rankings->isEmpty())
-                                <p class="text-center text-gray-500">No participants yet.</p>
-                            @else
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead>
-                                        <tr>
-                                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
-                                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solved</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        @foreach($rankings as $index => $participant)
-                                            <tr>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $index + 1 }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $participant->name }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $participant->accepted_count }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            @endif
         </div>
     </div>
 
     <!-- Join Contest Modal -->
-    <div id="joinModal" class="hidden fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+    <div id="joinModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Join Contest</h3>
                 <form method="POST" action="{{ route('contests.join', $contest) }}">
                     @csrf
-                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                        <div class="sm:flex sm:items-start">
-                            <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                    Join Contest
-                                </h3>
-                                <div class="mt-2">
-                                    <div>
-                                        <label for="password" class="block text-sm font-medium text-gray-700">Contest Password</label>
-                                        <input type="password" name="password" id="password" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="mb-4">
+                        <label for="password" class="block text-sm font-medium text-gray-700">Contest Password</label>
+                        <input type="password" name="password" id="password" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        @error('password')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
-                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
-                            Join
-                        </button>
-                        <button type="button" onclick="document.getElementById('joinModal').classList.add('hidden')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="document.getElementById('joinModal').classList.add('hidden')"
+                            class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">
                             Cancel
+                        </button>
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                            Join
                         </button>
                     </div>
                 </form>

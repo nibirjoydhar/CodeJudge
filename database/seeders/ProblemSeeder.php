@@ -37,7 +37,25 @@ class ProblemSeeder extends Seeder
                         'input' => '',
                         'expected_output' => 'Hello, World!',
                         'is_sample' => true,
-                        'points' => 100
+                        'points' => 25
+                    ],
+                    [
+                        'input' => '',
+                        'expected_output' => 'Hello, World!',
+                        'is_sample' => false,
+                        'points' => 25
+                    ],
+                    [
+                        'input' => '',
+                        'expected_output' => 'Hello, World!',
+                        'is_sample' => false,
+                        'points' => 25
+                    ],
+                    [
+                        'input' => '',
+                        'expected_output' => 'Hello, World!',
+                        'is_sample' => false,
+                        'points' => 25
                     ]
                 ]
             ],

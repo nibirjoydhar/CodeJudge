@@ -11,11 +11,12 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-            <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
+                    <!-- Basic Info -->
                     <div class="mb-8">
-                        <h3 class="text-lg font-semibold mb-2">{{ __('Submission Information') }}</h3>
+                        <h3 class="text-lg font-semibold mb-4">{{ __('Submission Information') }}</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <p class="text-sm text-gray-600">{{ __('Problem') }}</p>
@@ -44,27 +45,36 @@
                         </div>
                     </div>
 
+                    <!-- Status Details -->
+                    @if(str_starts_with($submission->status, 'Compilation Error') || strlen($submission->status) > 50)
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold mb-4">{{ __('Error Details') }}</h3>
+                        <div class="bg-gray-50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
+                            <pre class="whitespace-pre-wrap">{{ $submission->status }}</pre>
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Source Code -->
                     <div>
-                        <div class="flex justify-between items-center mb-2">
+                        <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-semibold">{{ __('Source Code') }}</h3>
-                            <div class="flex space-x-2">
-                                <button onclick="copyToClipboard('sourceCode')" class="copy-btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1.5 px-3 rounded shadow-sm flex items-center transition-all duration-200 hover:scale-105 hover:shadow-md">
+                            <button onclick="copyToClipboard('sourceCode')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1.5 px-3 rounded shadow-sm flex items-center transition-all duration-200 hover:scale-105 hover:shadow-md">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                                     </svg>
                                     <span>{{ __('Copy') }}</span>
                                 </button>
                             </div>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-md shadow-inner overflow-x-auto relative mb-6">
-                            <pre id="sourceCode" class="text-sm font-mono whitespace-pre-wrap">{{ $submission->code }}</pre>
+                        <div class="bg-gray-50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
+                            <pre id="sourceCode" class="whitespace-pre-wrap">{{ $submission->code }}</pre>
                         </div>
                     </div>
 
                     <div class="mt-8">
                         <h3 class="text-lg font-semibold mb-2">{{ __('Test Cases') }}</h3>
                         <div class="space-y-4">
-                            @foreach($submission->problem->getFormattedTestCasesAttribute() as $index => $testCase)
+                            @foreach($submission->problem->testCases as $index => $testCase)
                                 <div class="border rounded-md p-4">
                                     <h4 class="font-medium mb-2">{{ __('Test Case') }} #{{ $index + 1 }}</h4>
                                     
@@ -79,7 +89,7 @@
                                             </button>
                                         </div>
                                         <div class="bg-gray-50 p-3 rounded-md shadow-inner">
-                                            <pre id="input-{{ $index }}" class="text-sm font-mono whitespace-pre-wrap">{{ $testCase['input'] ?? '' }}</pre>
+                                            <pre id="input-{{ $index }}" class="text-sm font-mono whitespace-pre-wrap">{{ $testCase->input ?? '' }}</pre>
                                         </div>
                                     </div>
                                     
@@ -94,7 +104,7 @@
                                             </button>
                                         </div>
                                         <div class="bg-gray-50 p-3 rounded-md shadow-inner">
-                                            <pre id="output-{{ $index }}" class="text-sm font-mono whitespace-pre-wrap">{{ $testCase['output'] ?? '' }}</pre>
+                                            <pre id="output-{{ $index }}" class="text-sm font-mono whitespace-pre-wrap">{{ $testCase->expected_output ?? '' }}</pre>
                                         </div>
                                     </div>
                                 </div>
@@ -108,52 +118,33 @@
 
     <script>
         function copyToClipboard(elementId) {
-            // Get the content to copy
             const element = document.getElementById(elementId);
             const textToCopy = element.textContent;
             const button = event.currentTarget;
-
-            // Store original button text
             const buttonText = button.querySelector('span');
             const originalText = buttonText.textContent;
             
-            // Copy text to clipboard
             navigator.clipboard.writeText(textToCopy)
                 .then(() => {
-                    // Change button style to green
                     button.classList.remove('bg-gray-200', 'hover:bg-gray-300', 'text-gray-800');
                     button.classList.add('bg-green-500', 'text-white');
-                    
-                    // Change text to "Copied!"
                     buttonText.textContent = "Copied!";
                     
-                    // Set a timeout to revert after 2 seconds
                     setTimeout(() => {
-                        // Change back to original style
                         button.classList.remove('bg-green-500', 'text-white');
                         button.classList.add('bg-gray-200', 'hover:bg-gray-300', 'text-gray-800');
-                        
-                        // Change text back to original
                         buttonText.textContent = originalText;
                     }, 2000);
                 })
                 .catch(err => {
                     console.error('Could not copy text: ', err);
-                    
-                    // Change button style to red
                     button.classList.remove('bg-gray-200', 'hover:bg-gray-300', 'text-gray-800');
                     button.classList.add('bg-red-500', 'text-white');
-                    
-                    // Change text to "Failed!"
                     buttonText.textContent = "Failed!";
                     
-                    // Set a timeout to revert after 2 seconds
                     setTimeout(() => {
-                        // Change back to original style
                         button.classList.remove('bg-red-500', 'text-white');
                         button.classList.add('bg-gray-200', 'hover:bg-gray-300', 'text-gray-800');
-                        
-                        // Change text back to original
                         buttonText.textContent = originalText;
                     }, 2000);
                 });

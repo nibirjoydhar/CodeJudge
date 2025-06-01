@@ -120,7 +120,7 @@ class Judge0Service
 
         foreach ($testCases as $testCase) {
             $input = $testCase['input'];
-            $expectedOutput = trim($testCase['output']);
+            $expectedOutput = trim($testCase['expected_output']);
 
             $submission = $this->submitCode($sourceCode, $languageId, $input);
             

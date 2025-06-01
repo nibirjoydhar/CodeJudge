@@ -60,7 +60,12 @@ class SubmissionController extends Controller
         ]);
 
         $problem = Problem::findOrFail($validated['problem_id']);
-        $testCases = $problem->getFormattedTestCasesAttribute();
+        $testCases = $problem->testCases()->get()->map(function($testCase) {
+            return [
+                'input' => $testCase->input,
+                'expected_output' => $testCase->expected_output
+            ];
+        })->toArray();
 
         // Check if we're in a local/development environment or if the Judge0 integration is unavailable
         if (app()->environment('local') && (
@@ -69,6 +74,7 @@ class SubmissionController extends Controller
         )) {
             // Simulate code evaluation in development environment
             $status = 'Simulated Accepted';
+            $points = 100; // Default points for simulated acceptance
         } else {
             // Use real Judge0 service for production
             $status = $this->judge0Service->evaluateCode(
@@ -76,6 +82,9 @@ class SubmissionController extends Controller
                 $validated['language_id'], 
                 $testCases
             );
+            
+            // Calculate points based on status
+            $points = $status === 'Accepted' ? 100 : 0;
         }
 
         // Create submission record
@@ -85,6 +94,7 @@ class SubmissionController extends Controller
             'code' => $validated['code'],
             'language_id' => $validated['language_id'],
             'status' => $status,
+            'points' => $points
         ]);
 
         return redirect()->route('submissions.index')

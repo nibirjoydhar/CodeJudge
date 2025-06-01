@@ -56,6 +56,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/contests/{contest}', [ContestController::class, 'show'])->name('contests.show');
     Route::post('/contests/{contest}/join', [ContestController::class, 'join'])->name('contests.join');
     Route::post('/contests/{contest}/problems/{problem}/submit', [ContestController::class, 'submit'])->name('contests.submit');
+    
+    // Contest Problem Routes
+    Route::get('/contests/{contest}/problems/{problem}', [ContestController::class, 'showProblem'])
+        ->name('contests.problems.show');
+    Route::get('/contests/{contest}/problems/{problem}/submit', [ContestController::class, 'showSubmitForm'])
+        ->name('contests.submit');
+    Route::post('/contests/{contest}/problems/{problem}/submit', [ContestController::class, 'submitSolution'])
+        ->name('contests.submit.store');
 });
 
 require __DIR__.'/auth.php';

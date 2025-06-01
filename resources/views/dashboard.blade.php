@@ -107,52 +107,66 @@
                     <div class="card shadow-sm border-0 rounded">
                         <div class="card-body p-4">
                             <h3 class="h5 fw-medium text-dark mb-4">{{ __('Recent Submissions') }}</h3>
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th scope="col" class="px-4 py-3 text-start text-xs fw-medium text-muted text-uppercase">Problem</th>
-                                            <th scope="col" class="px-4 py-3 text-start text-xs fw-medium text-muted text-uppercase">Language</th>
-                                            <th scope="col" class="px-4 py-3 text-start text-xs fw-medium text-muted text-uppercase">Status</th>
-                                            <th scope="col" class="px-4 py-3 text-start text-xs fw-medium text-muted text-uppercase">Submitted</th>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full bg-white">
+                                    <thead>
+                                            <tr class="bg-gray-100">
+                                            <th class="w-1/12 py-2 px-4 text-left">#</th>
+                                            <th class="w-3/12 py-2 px-4 text-left">Problem</th>
+                                            <th class="w-1/12 py-2 px-4 text-left">Language</th>
+                                            <th class="w-3/12 py-2 px-4 text-left">Status</th>
+                                            <th class="w-2/12 py-2 px-4 text-left">Submitted</th>
+                                            <th class="w-1/12 py-2 px-4 text-center">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @forelse (auth()->user()->submissions->sortByDesc('created_at')->take(5) as $submission)
-                                            <tr>
-                                                <td class="px-4 py-3">
-                                                    <a href="{{ route('problems.show', $submission->problem_id) }}"
-                                                        class="text-sm text-primary text-decoration-none">
-                                                        {{ $submission->problem->title ?? 'Unknown Problem' }}
+                                            <tr class="border-b hover:bg-gray-50">
+                                                <td class="py-2 px-4">{{ $submission->id }}</td>
+                                                <td class="py-2 px-4">
+                                                    <a href="{{ route('problems.show', $submission->problem) }}" class="text-blue-600 hover:text-blue-900 hover:underline">
+                                                        {{ $submission->problem->title }}
                                                     </a>
                                                 </td>
-                                                <td class="px-4 py-3 text-sm text-muted">
-                                                    {{ $submission->getLanguageName() }}
+                                                <td class="py-2 px-4">{{ $submission->getLanguageName() }}</td>
+                                                <td class="py-2 px-4">
+                                                    <div class="flex items-center space-x-2">
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                            {{ $submission->status === 'Accepted' ? 'bg-green-100 text-green-800' : 
+                                                            ($submission->status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
+                                                            @if(str_starts_with($submission->status, 'Compilation Error'))
+                                                                Compilation Error
+                                                            @elseif(strlen($submission->status) > 50)
+                                                                {{ substr($submission->status, 0, 50) }}...
+                                                            @else
+                                                                {{ $submission->status }}
+                                                            @endif
+                                                        </span>
+                                                    </div>
                                                 </td>
-                                                <td class="px-4 py-3">
-                                                    <span
-                                                        class="badge 
-                                                        {{ $submission->status === 'Accepted' ? 'bg-success' : 
-                                                           ($submission->status === 'Wrong Answer' ? 'bg-danger' : 
-                                                           ($submission->status === 'Runtime Error' ? 'bg-warning' : 
-                                                           ($submission->status === 'Compilation Error' ? 'bg-orange' : 'bg-secondary'))) }}"
-                                                        style="{{ $submission->status === 'Compilation Error' ? 'background-color: #f97316;' : '' }}">
-                                                        {{ $submission->status }}
-                                                    </span>
-                                                </td>
-                                                <td class="px-4 py-3 text-sm text-muted">
-                                                    {{ $submission->created_at->diffForHumans() }}
+                                                <td class="py-2 px-4">{{ $submission->created_at->diffForHumans() }}</td>
+                                                <td class="py-2 px-4 text-center">
+                                                    <a href="{{ route('submissions.show', $submission) }}" 
+                                                        class="text-xs text-blue-600 hover:text-blue-900 hover:underline">
+                                                        View Details
+                                                    </a>
                                                 </td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="4" class="px-4 py-3 text-sm text-muted text-center">
+                                                <td colspan="6" class="py-4 px-4 text-center text-gray-500">
                                                     {{ __('No submissions yet.') }}
                                                 </td>
                                             </tr>
                                         @endforelse
                                     </tbody>
                                 </table>
+
+                                <div class="mt-4 text-center">
+                                    <a href="{{ route('submissions.index') }}" class="text-indigo-600 hover:text-indigo-900 text-sm">
+                                        View All Submissions
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -33,15 +33,21 @@
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                                 {{ $submission->status === 'Accepted' ? 'bg-green-100 text-green-800' : 
                                                 ($submission->status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
+                                                @if(str_starts_with($submission->status, 'Compilation Error'))
+                                                    Compilation Error
+                                                @elseif(strlen($submission->status) > 50)
+                                                    {{ substr($submission->status, 0, 50) }}...
+                                                @else
                                                 {{ $submission->status }}
+                                                @endif
                                             </span>
                                             <span class="text-xs text-gray-500">{{ $submission->created_at->diffForHumans() }}</span>
                                         </div>
                                         <div class="mt-2 flex justify-between items-center">
                                             <span class="text-sm text-gray-600">{{ $submission->getLanguageName() }}</span>
                                             <a href="{{ route('submissions.show', $submission) }}" 
-                                                class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
-                                                View Code
+                                                class="text-xs text-blue-600 hover:text-blue-900 hover:underline">
+                                                View Details
                                             </a>
                                         </div>
                                     </div>
@@ -74,11 +80,11 @@
                                     <div class="mb-8">                                                                      
                                         <h3 class="text-lg font-bold mb-4">Test Cases</h3>
                                         <div class="grid grid-cols-1 gap-6">
-                                            @foreach($problem->test_cases as $index => $test_case)
+                                            @foreach($problem->testCases->where('is_sample', true) as $index => $test_case)
                                                 <div class="border rounded-lg shadow-sm overflow-hidden">
                                                     <div class="bg-gray-100 px-4 py-2 border-b">
                                                         <div class="flex justify-between items-center">
-                                                            <h4 class="font-medium text-gray-700">Test Case #{{ $index + 1 }}</h4>
+                                                            <h4 class="font-medium text-gray-700">Sample Test Case #{{ $index + 1 }}</h4>
                                                         </div>
                                                     </div>
                                                     <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x">
@@ -93,7 +99,7 @@
                                                                 </button>
                                                             </div>
                                                             <div class="bg-gray-50 p-3 rounded border">
-                                                                <pre id="input-{{ $index }}" class="p-4 text-sm font-mono whitespace-pre-wrap">{!! e($test_case['input'] ?? 'N/A') !!}</pre>
+                                                                <pre id="input-{{ $index }}" class="p-4 text-sm font-mono whitespace-pre-wrap">{!! e($test_case->input ?? 'N/A') !!}</pre>
                                                             </div>
                                                         </div>
                                                         <div class="p-4">
@@ -107,7 +113,7 @@
                                                                 </button>
                                                             </div>
                                                             <div class="bg-gray-50 p-3 rounded border">
-                                                                <pre id="output-{{ $index }}" class="p-4 text-sm font-mono whitespace-pre-wrap">{!! e($test_case['output'] ?? 'N/A') !!}</pre>
+                                                                <pre id="output-{{ $index }}" class="p-4 text-sm font-mono whitespace-pre-wrap">{!! e($test_case->expected_output ?? 'N/A') !!}</pre>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -170,16 +176,24 @@
                                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                                             {{ $submission->status === 'Accepted' ? 'bg-green-100 text-green-800' : 
                                                             ($submission->status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
+                                                            @if(str_starts_with($submission->status, 'Compilation Error'))
+                                                                Compilation Error
+                                                            @elseif(strlen($submission->status) > 50)
+                                                                {{ substr($submission->status, 0, 50) }}...
+                                                            @else
                                                             {{ $submission->status }}
+                                                            @endif
                                                         </span>
-                                                        <span class="text-xs text-gray-500">{{ $submission->created_at->diffForHumans() }}</span>
                                                     </div>
                                                     <div class="mt-2 flex justify-between items-center">
                                                         <span class="text-sm text-gray-600">{{ $submission->getLanguageName() }}</span>
                                                         <a href="{{ route('submissions.show', $submission) }}" 
-                                                            class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
-                                                            View Code
+                                                            class="text-xs text-blue-600 hover:text-blue-900 hover:underline">
+                                                            View Details
                                                         </a>
+                                                    </div>
+                                                    <div class="mt-1 text-xs text-gray-500">
+                                                        {{ $submission->created_at->diffForHumans() }}
                                                     </div>
                                                 </div>
                                             @endforeach

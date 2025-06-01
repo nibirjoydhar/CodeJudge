@@ -19,10 +19,21 @@ class Submission extends Model
     protected $fillable = [
         'user_id',
         'problem_id',
-        'contest_id',
         'code',
         'language_id',
         'status',
+        'verdict',
+        'error_message',
+        'execution_time',
+        'memory_usage',
+        'contest_id',
+        'points'
+    ];
+
+    protected $languages = [
+        '54' => 'C++',
+        '71' => 'Python',
+        '62' => 'Java'
     ];
 
     /**
@@ -74,11 +85,6 @@ class Submission extends Model
      */
     public function getLanguageName(): string
     {
-        return match ($this->language_id) {
-            54 => 'C++',
-            71 => 'Python',
-            62 => 'Java',
-            default => 'Unknown',
-        };
+        return $this->languages[$this->language_id] ?? 'Unknown';
     }
 } 

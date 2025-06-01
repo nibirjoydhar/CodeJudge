@@ -8,6 +8,8 @@ use App\Models\Submission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use App\Jobs\EvaluateSubmission;
+use Carbon\Carbon;
 
 class ContestController extends Controller
 {
@@ -38,11 +40,15 @@ class ContestController extends Controller
             'problems.*' => 'exists:problems,id'
         ]);
 
+        // Convert times to Bangladesh timezone
+        $startTime = Carbon::parse($validated['start_time'])->setTimezone('Asia/Dhaka');
+        $endTime = Carbon::parse($validated['end_time'])->setTimezone('Asia/Dhaka');
+
         $contest = Contest::create([
             'title' => $validated['title'],
             'description' => $validated['description'],
-            'start_time' => $validated['start_time'],
-            'end_time' => $validated['end_time'],
+            'start_time' => $startTime,
+            'end_time' => $endTime,
             'password' => Hash::make($validated['password']),
             'created_by' => auth()->id()
         ]);
@@ -55,27 +61,19 @@ class ContestController extends Controller
 
     public function show(Contest $contest)
     {
-        $isParticipant = $contest->participants()->where('user_id', auth()->id())->exists();
-        $canViewSubmissions = $contest->hasEnded() || auth()->user()->id === $contest->created_by;
+        $user = auth()->user();
         
-        $submissions = collect();
-        $rankings = collect();
-        
-        if ($isParticipant || $canViewSubmissions) {
-            $submissions = $contest->submissions()
-                ->with(['user', 'problem'])
-                ->orderBy('created_at', 'desc')
-                ->get();
-
-            $rankings = $contest->participants()
-                ->withCount(['submissions as accepted_count' => function($query) {
-                    $query->where('verdict', 'Accepted');
-                }])
-                ->orderByDesc('accepted_count')
-                ->get();
+        // Check if user can access the contest
+        if (!$contest->canAccess($user)) {
+            return redirect()->route('contests.index')
+                ->with('error', 'You do not have access to this contest or it has not started yet.');
         }
 
-        return view('contests.show', compact('contest', 'isParticipant', 'canViewSubmissions', 'submissions', 'rankings'));
+        $status = $contest->getStatus();
+        $isParticipant = $contest->participants()->where('user_id', $user->id)->exists();
+        $rankings = $contest->getRankings();
+        
+        return view('contests.show', compact('contest', 'status', 'isParticipant', 'rankings'));
     }
 
     public function join(Request $request, Contest $contest)
@@ -90,10 +88,17 @@ class ContestController extends Controller
             ]);
         }
 
+        // Check if already a participant
+        if ($contest->participants()->where('user_id', auth()->id())->exists()) {
+            return back()->with('info', 'You are already a participant in this contest.');
+        }
+
+        // Check if contest has ended
         if ($contest->hasEnded()) {
             return back()->with('error', 'This contest has ended.');
         }
 
+        // Add user as participant
         $contest->participants()->attach(auth()->id(), [
             'joined_at' => now()
         ]);
@@ -132,5 +137,78 @@ class ContestController extends Controller
 
         return redirect()->route('contests.show', $contest)
             ->with('success', 'Solution submitted successfully!');
+    }
+
+    public function showProblem(Contest $contest, Problem $problem)
+    {
+        $user = auth()->user();
+        
+        // Check if user can access the contest
+        if (!$contest->canAccess($user)) {
+            return redirect()->route('contests.index')
+                ->with('error', 'You do not have access to this contest or it has not started yet.');
+        }
+
+        // Check if problem belongs to contest
+        if (!$contest->problems()->where('id', $problem->id)->exists()) {
+            return redirect()->route('contests.show', $contest)
+                ->with('error', 'This problem is not part of the contest.');
+        }
+
+        return view('contests.problems.show', compact('contest', 'problem'));
+    }
+
+    public function showSubmitForm(Contest $contest, Problem $problem)
+    {
+        $user = auth()->user();
+        
+        // Check if user can access the contest and it's running
+        if (!$contest->canAccess($user) || $contest->getStatus() !== 'Running') {
+            return redirect()->route('contests.show', $contest)
+                ->with('error', 'You cannot submit solutions at this time.');
+        }
+
+        // Check if problem belongs to contest
+        if (!$contest->problems()->where('id', $problem->id)->exists()) {
+            return redirect()->route('contests.show', $contest)
+                ->with('error', 'This problem is not part of the contest.');
+        }
+
+        return view('contests.problems.submit', compact('contest', 'problem'));
+    }
+
+    public function submitSolution(Request $request, Contest $contest, Problem $problem)
+    {
+        $user = auth()->user();
+        
+        // Check if user can access the contest and it's running
+        if (!$contest->canAccess($user) || $contest->getStatus() !== 'Running') {
+            return redirect()->route('contests.show', $contest)
+                ->with('error', 'You cannot submit solutions at this time.');
+        }
+
+        // Validate submission
+        $validated = $request->validate([
+            'language_id' => 'required|integer',
+            'code' => 'required|string'
+        ]);
+
+        // Create submission
+        $submission = new Submission([
+            'user_id' => $user->id,
+            'problem_id' => $problem->id,
+            'contest_id' => $contest->id,
+            'language_id' => $validated['language_id'],
+            'code' => $validated['code'],
+            'status' => 'Pending'
+        ]);
+
+        $submission->save();
+
+        // Dispatch job to evaluate submission
+        EvaluateSubmission::dispatch($submission);
+
+        return redirect()->route('contests.show', $contest)
+            ->with('success', 'Solution submitted successfully.');
     }
 } 
