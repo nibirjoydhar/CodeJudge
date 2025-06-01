@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Submission;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class LeaderboardService
 {
@@ -24,7 +25,8 @@ class LeaderboardService
     protected const CACHE_DURATION = 300;
 
     /**
-     * Get the top 10 users with the most accepted submissions.
+     * Get the top 10 users with the most unique problems solved.
+     * Only counts the first accepted submission for each problem.
      *
      * @return \Illuminate\Support\Collection
      */
@@ -33,7 +35,14 @@ class LeaderboardService
         return Cache::remember(self::CACHE_KEY, self::CACHE_DURATION, function () {
             return User::where('role', 'contestant')
                 ->withCount(['submissions as solved_count' => function ($query) {
-                    $query->where('status', 'Accepted');
+                    $query->select(DB::raw('COUNT(DISTINCT problem_id)'))
+                        ->where('status', 'Accepted')
+                        ->whereIn('id', function($subquery) {
+                            $subquery->select(DB::raw('MIN(id)'))
+                                ->from('submissions')
+                                ->where('status', 'Accepted')
+                                ->groupBy('user_id', 'problem_id');
+                        });
                 }])
                 ->orderByDesc('solved_count')
                 ->limit(10)

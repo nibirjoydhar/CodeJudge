@@ -1,150 +1,128 @@
 # CodeJudge
 
-A sleek and modern online programming judge platform built with Laravel and TailwindCSS. Perfect for universities, coding bootcamps, and competitive programming enthusiasts.
+CodeJudge is a robust online judge system that allows users to solve programming problems and submit their solutions for automated evaluation.
 
-![Screenshot of CodeJudge](public/images/logo.jpg)
+## Features
 
-## What makes CodeJudge special? 🌟
+- **Problem Management**
+  - Create and manage programming problems
+  - Support for multiple difficulty levels (easy/medium/hard)
+  - Detailed problem descriptions with input/output formats and constraints
+  - Sample test cases for better understanding
 
-Unlike other online judges that feel clunky and outdated, CodeJudge brings a fresh perspective with its modern UI and seamless user experience. It's designed for both beginners and experienced programmers, making it perfect for educational institutions and coding competitions.
+- **Code Submission**
+  - Support for multiple programming languages (C++, Python, Java)
+  - Real-time submission status updates
+  - Detailed error reporting and feedback
+  - View submission history
 
-## Core Features
+- **Judge System**
+  - Local Judge0 CE instance via Docker
+  - Secure code execution environment
+  - Multiple test case validation
+  - Performance metrics tracking
 
-### For Problem Solvers 👨‍💻
-- Crystal clear problem descriptions with formatted input/output examples
-- Real-time submission feedback
-- Personal submission history and statistics
-- Problem difficulty indicators
-- Sample test cases to get you started
+- **User Interface**
+  - Clean and intuitive problem display
+  - Syntax-highlighted code editor
+  - Mobile-responsive design
+  - Discussion system for each problem
 
-### For Problem Setters 📝
-- Intuitive problem creation interface
-- Support for multiple test cases
-- Custom input/output validation
-- Problem templates to get started quickly
-- Rich text editor for problem descriptions
+## Technical Stack
 
-### For Admins 🛠
-- User management with role-based access
-- Detailed submission logs
-- Problem and contest analytics
-- System health monitoring
-- Easy backup and restore options
+- **Backend**: Laravel PHP Framework
+- **Frontend**: Blade Templates with Tailwind CSS
+- **Database**: PostgreSQL
+- **Cache**: Redis
+- **Judge System**: Judge0 CE (Community Edition)
+- **Containerization**: Docker & Docker Compose
 
-## Tech Stack
+## Prerequisites
 
-- **Backend**: Laravel 10.x
-- **Frontend**: TailwindCSS + Alpine.js
-- **Database**: MySQL
-- **Cache**: Redis (optional)
-- **Testing**: PHPUnit
+- Docker and Docker Compose
+- PHP >= 8.0
+- Composer
+- Node.js and npm
 
-## Quick Setup
+## Installation
 
-1. Get the code
+1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/CodeJudge.git
+git clone [repository-url]
 cd CodeJudge
 ```
 
-2. Install what you need
+2. Install PHP dependencies:
 ```bash
 composer install
-npm install
 ```
 
-3. Set up your environment
+3. Install and compile frontend assets:
+```bash
+npm install
+npm run dev
+```
+
+4. Set up environment variables:
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-4. Configure your database in `.env`
+5. Start the Judge0 CE services:
+```bash
+docker-compose up -d
 ```
-DB_CONNECTION=mysql
+
+6. Run database migrations:
+```bash
+php artisan migrate
+```
+
+## Configuration
+
+### Judge0 Configuration
+
+The system supports both RapidAPI's Judge0 service and local Judge0 CE instance. The local instance is configured to run on:
+- API Endpoint: http://localhost:2358
+- Worker Count: 5
+- Maximum Queue Size: 100
+
+### Database Configuration
+
+The system uses PostgreSQL for both the main application and Judge0 CE. Configure the following in your `.env` file:
+```
+DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
-DB_PORT=3306
+DB_PORT=5432
 DB_DATABASE=codejudge
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
 ```
 
-5. Set up the database and compile assets
-```bash
-php artisan migrate --seed  # This will create sample problems!
-npm run build
-```
+## Usage
 
-6. Start coding!
-```bash
-php artisan serve
-```
+1. Create a new problem through the admin interface
+2. Add test cases (both sample and hidden)
+3. Users can view problems and submit solutions
+4. System automatically judges submissions against all test cases
+5. Users can view their submission history and discuss problems
 
-Visit `http://localhost:8000` and log in with:
-- Email: admin@codejudge.com
-- Password: password123
+## Security
 
-## Sample Problems
-
-We've included 5 beginner-friendly problems to get you started:
-1. Hello World
-2. Sum of Two Numbers
-3. Even or Odd
-4. Reverse String
-5. Count Vowels
-
-Each problem comes with:
-- Detailed descriptions
-- Input/output formats
-- Sample test cases
-- Helpful explanations
-- Multiple test cases
-
-## Folder Structure
-
-```
-CodeJudge/
-├── app/                 # Core application logic
-│   ├── Http/           # Controllers & Middleware
-│   ├── Models/         # Database models
-│   └── Services/       # Business logic
-├── database/
-│   ├── migrations/     # Database structure
-│   └── seeders/       # Sample data
-├── resources/
-│   ├── views/         # Blade templates
-│   ├── css/          # Tailwind styles
-│   └── js/           # Alpine.js components
-└── tests/             # Test suites
-```
+- All user code is executed in isolated Docker containers
+- Rate limiting on submissions
+- Input validation and sanitization
+- Secure handling of test cases
 
 ## Contributing
 
-Found a bug? Want to add a feature? Here's how:
-
-1. Fork it
-2. Create your feature branch (`git checkout -b feature/awesome-feature`)
-3. Commit your changes (`git commit -m 'Add awesome feature'`)
-4. Push to the branch (`git push origin feature/awesome-feature`)
-5. Open a Pull Request
-
-## Troubleshooting
-
-Having issues? Here are some common fixes:
-
-- **Can't connect to MySQL?** Make sure it's running: `sudo systemctl start mysql`
-- **Permission issues?** Check directory permissions: `chmod -R 775 storage bootstrap/cache`
-- **Assets not updating?** Clear the cache: `php artisan cache:clear && npm run build`
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a new Pull Request
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Need Help?
-
-- 📖 Check out our [Wiki](https://github.com/yourusername/CodeJudge/wiki)
-- 🐛 Found a bug? [Open an issue](https://github.com/yourusername/CodeJudge/issues)
-- 💬 Questions? Email us at support@codejudge.com
-
----
-Made with ❤️ by developers, for developers
+[Your License Here]
