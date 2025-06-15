@@ -31,4 +31,16 @@ class Problem extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function isSolvedByUser($user)
+    {
+        if (!$user) {
+            return false;
+        }
+        
+        return $user->submissions()
+            ->where('problem_id', $this->id)
+            ->where('status', 'accepted')
+            ->exists();
+    }
 }

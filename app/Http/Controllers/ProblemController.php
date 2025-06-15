@@ -39,6 +39,9 @@ class ProblemController extends Controller
             'output_format' => 'required|string',
             'constraints' => 'required|string',
             'difficulty' => 'required|string|in:easy,medium,hard',
+            'explanation' => 'nullable|string',
+            'sample_input' => 'required|string',
+            'sample_output' => 'required|string',
             'test_cases' => ['required', 'array', 'min:1'],
             'test_cases.*.input' => 'required|string',
             'test_cases.*.expected_output' => 'required|string',
@@ -48,16 +51,6 @@ class ProblemController extends Controller
 
         DB::beginTransaction();
         try {
-            // Find the first sample test case to use for sample input/output
-            $sampleTestCase = collect($validated['test_cases'])->first(function ($testCase) {
-                return isset($testCase['is_sample']) && $testCase['is_sample'] == '1';
-            });
-
-            // If no sample test case is marked, use the first test case
-            if (!$sampleTestCase) {
-                $sampleTestCase = $validated['test_cases'][0];
-            }
-
             // Create the problem with all required fields
             $problem = Problem::create([
                 'title' => $validated['title'],
@@ -66,9 +59,9 @@ class ProblemController extends Controller
                 'output_format' => $validated['output_format'],
                 'constraints' => $validated['constraints'],
                 'difficulty' => $validated['difficulty'],
-                'sample_input' => $sampleTestCase['input'],
-                'sample_output' => $sampleTestCase['expected_output'],
-                'explanation' => '', // Provide a default empty value
+                'sample_input' => $validated['sample_input'],
+                'sample_output' => $validated['sample_output'],
+                'explanation' => $validated['explanation'] ?? '',
                 'created_by' => auth()->id(),
             ]);
 
@@ -116,6 +109,9 @@ class ProblemController extends Controller
             'output_format' => 'required|string',
             'constraints' => 'required|string',
             'difficulty' => 'required|string|in:easy,medium,hard',
+            'explanation' => 'nullable|string',
+            'sample_input' => 'required|string',
+            'sample_output' => 'required|string',
             'test_cases' => ['required', 'array', 'min:1'],
             'test_cases.*.input' => 'required|string',
             'test_cases.*.expected_output' => 'required|string',
@@ -125,16 +121,6 @@ class ProblemController extends Controller
 
         DB::beginTransaction();
         try {
-            // Find the first sample test case to use for sample input/output
-            $sampleTestCase = collect($validated['test_cases'])->first(function ($testCase) {
-                return isset($testCase['is_sample']) && $testCase['is_sample'] == '1';
-            });
-
-            // If no sample test case is marked, use the first test case
-            if (!$sampleTestCase) {
-                $sampleTestCase = $validated['test_cases'][0];
-            }
-
             $problem->update([
                 'title' => $validated['title'],
                 'description' => $validated['description'],
@@ -142,8 +128,9 @@ class ProblemController extends Controller
                 'output_format' => $validated['output_format'],
                 'constraints' => $validated['constraints'],
                 'difficulty' => $validated['difficulty'],
-                'sample_input' => $sampleTestCase['input'],
-                'sample_output' => $sampleTestCase['expected_output']
+                'sample_input' => $validated['sample_input'],
+                'sample_output' => $validated['sample_output'],
+                'explanation' => $validated['explanation'] ?? ''
             ]);
 
             // Delete existing test cases

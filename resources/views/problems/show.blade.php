@@ -110,6 +110,16 @@
                                         </div>
                                     </div>
 
+                                    <!-- Explanation -->
+                                    @if(!empty($problem->explanation))
+                                    <div class="mb-8">
+                                        <h3 class="text-lg font-bold mb-4">Explanation</h3>
+                                        <div class="prose max-w-none bg-yellow-50 p-4 rounded-lg">
+                                            {!! nl2br(e($problem->explanation)) !!}
+                                        </div>
+                                    </div>
+                                    @endif
+
                                     <!-- Sample Test Cases -->
                                     <div class="mb-8">                                                                      
                                         <h3 class="text-lg font-bold mb-4">Sample Test Cases</h3>

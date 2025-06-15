@@ -150,6 +150,19 @@ class ProblemSeeder extends Seeder
                 'difficulty' => 'hard',
                 'created_by' => 1,
             ],
+                        // Problem 11: Multiple Array Sums (Easy)
+            [
+                'title' => 'Multiple Array Sums',
+                'description' => 'You are given several test cases. For each test case, you will receive an array of integers. Your task is to calculate and print the sum of all elements in that array.',
+                'input_format' => 'The first line contains a single integer T (1 <= T <= 10), indicating the number of test cases.' . "\n\n" . 'For each test case:' . "\n" . 'The first line contains an integer N (1 <= N <= 10^3), representing the number of elements in the array.' . "\n" . 'The second line contains N space-separated integers, A_1, A_2, ..., A_N, representing the elements of the array.',
+                'output_format' => 'For each test case, output a single integer which is the sum of the array elements on a new line.',
+                'constraints' => '1 <= T <= 10' . "\n" . '1 <= N <= 10^3' . "\n" . '-10^6 <= A_i <= 10^6 (where A_i is an element of the array)' . "\n" . 'The sum of N over all test cases will not exceed 5 * 10^3.',
+                'sample_input' => "2\n3\n1 2 3\n4\n10 20 -5 15",
+                'sample_output' => "6\n40",
+                'explanation' => "For the first test case, N=3 and array is [1, 2, 3]. Sum is 1+2+3=6.\nFor the second test case, N=4 and array is [10, 20, -5, 15]. Sum is 10+20-5+15=40.",
+                'difficulty' => 'easy',
+                'created_by' => 1,
+            ],
         ];
 
         foreach ($problems as $problemData) {
@@ -210,6 +223,11 @@ class ProblemSeeder extends Seeder
                     TestCase::create(['problem_id' => $problem->id, 'input' => "2\napple\napricot", 'expected_output' => 'ap', 'is_sample' => 0, 'points' => 50]);
                     TestCase::create(['problem_id' => $problem->id, 'input' => "3\ndog\nracecar\ncar", 'expected_output' => '', 'is_sample' => 0, 'points' => 50]);
                     TestCase::create(['problem_id' => $problem->id, 'input' => "1\nhello", 'expected_output' => 'hello', 'is_sample' => 0, 'points' => 50]);
+                    break;
+                case 'Multiple Array Sums':
+                    TestCase::create(['problem_id' => $problem->id, 'input' => "3\n1\n100\n2\n-1 -2\n3\n1 1 1", 'expected_output' => "100\n-3\n3", 'is_sample' => 0, 'points' => 30]);
+                    TestCase::create(['problem_id' => $problem->id, 'input' => "1\n5\n100000 200000 300000 400000 500000", 'expected_output' => "1500000", 'is_sample' => 0, 'points' => 30]);
+                    TestCase::create(['problem_id' => $problem->id, 'input' => "2\n3\n-10 -20 -30\n2\n5 5", 'expected_output' => "-60\n10", 'is_sample' => 0, 'points' => 40]);
                     break;
             }
         }

@@ -36,6 +36,74 @@
                             @enderror
                         </div>
 
+                        <!-- Input Format -->
+                        <div class="mb-4">
+                            <label for="input_format" class="block text-sm font-medium text-gray-700">Input Format</label>
+                            <textarea name="input_format" id="input_format" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('input_format') border-red-500 @enderror" required>{{ old('input_format', $problem->input_format) }}</textarea>
+                            @error('input_format')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Output Format -->
+                        <div class="mb-4">
+                            <label for="output_format" class="block text-sm font-medium text-gray-700">Output Format</label>
+                            <textarea name="output_format" id="output_format" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('output_format') border-red-500 @enderror" required>{{ old('output_format', $problem->output_format) }}</textarea>
+                            @error('output_format')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Constraints -->
+                        <div class="mb-4">
+                            <label for="constraints" class="block text-sm font-medium text-gray-700">Constraints</label>
+                            <textarea name="constraints" id="constraints" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('constraints') border-red-500 @enderror" required>{{ old('constraints', $problem->constraints) }}</textarea>
+                            @error('constraints')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Sample Input -->
+                        <div class="mb-4">
+                            <label for="sample_input" class="block text-sm font-medium text-gray-700">Sample Input</label>
+                            <textarea name="sample_input" id="sample_input" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('sample_input') border-red-500 @enderror" required>{{ old('sample_input', $problem->sample_input) }}</textarea>
+                            @error('sample_input')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Sample Output -->
+                        <div class="mb-4">
+                            <label for="sample_output" class="block text-sm font-medium text-gray-700">Sample Output</label>
+                            <textarea name="sample_output" id="sample_output" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('sample_output') border-red-500 @enderror" required>{{ old('sample_output', $problem->sample_output) }}</textarea>
+                            @error('sample_output')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Explanation -->
+                        <div class="mb-4">
+                            <label for="explanation" class="block text-sm font-medium text-gray-700">Explanation (Optional)</label>
+                            <textarea name="explanation" id="explanation" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('explanation') border-red-500 @enderror">{{ old('explanation', $problem->explanation) }}</textarea>
+                            @error('explanation')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Difficulty -->
+                        <div class="mb-4">
+                            <label for="difficulty" class="block text-sm font-medium text-gray-700">Difficulty</label>
+                            <select name="difficulty" id="difficulty" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('difficulty') border-red-500 @enderror" required>
+                                <option value="">Select difficulty</option>
+                                <option value="easy" {{ old('difficulty', $problem->difficulty) == 'easy' ? 'selected' : '' }}>Easy</option>
+                                <option value="medium" {{ old('difficulty', $problem->difficulty) == 'medium' ? 'selected' : '' }}>Medium</option>
+                                <option value="hard" {{ old('difficulty', $problem->difficulty) == 'hard' ? 'selected' : '' }}>Hard</option>
+                            </select>
+                            @error('difficulty')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <!-- Test Cases -->
                         <div class="mb-4">
                             <label for="test_cases" class="block text-sm font-medium text-gray-700">Test Cases</label>
