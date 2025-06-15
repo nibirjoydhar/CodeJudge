@@ -72,8 +72,6 @@
                             @enderror
                         </div>
 
-                        <div style="color:red;font-weight:bold;">AFTER CONSTRAINTS</div>
-
                         <!-- Sample Input -->
                         <div class="mb-4">
                             <label for="sample_input" class="block text-sm font-medium text-gray-700">Sample Input</label>
@@ -91,9 +89,6 @@
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
-
-
-                        <div style="color:red;font-weight:bold;">TEST FIELD HERE</div>
                         
                         <!-- Explanation -->
                         <div class="mb-4">

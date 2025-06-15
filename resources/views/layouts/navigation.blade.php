@@ -30,9 +30,6 @@
                         <x-nav-link :href="route('admin.problems.index')" :active="request()->routeIs('admin.problems.*')">
                             {{ __('Manage Problems') }}
                         </x-nav-link>
-                        <x-nav-link :href="route('admin.problems.create')" :active="request()->routeIs('admin.problems.create')">
-                            {{ __('Upload Problem') }}
-                        </x-nav-link>
                     @endif
                     
                     @if(Auth::user()->isContestant())
@@ -114,9 +111,6 @@
                 <!-- Admin Only Links (Mobile) -->
                 <x-responsive-nav-link :href="route('admin.problems.index')" :active="request()->routeIs('admin.problems.*')">
                     {{ __('Manage Problems') }}
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('admin.problems.create')" :active="request()->routeIs('admin.problems.create')">
-                    {{ __('Upload Problem') }}
                 </x-responsive-nav-link>
             @endif
             
