@@ -49,7 +49,7 @@ CodeJudge is a robust online judge system that allows users to solve programming
 
 1. Clone the repository:
 ```bash
-git clone [repository-url]
+git clone https://github.com/nibirjoydhar/CodeJudge
 cd CodeJudge
 ```
 
@@ -77,7 +77,7 @@ docker-compose up -d
 
 6. Run database migrations:
 ```bash
-php artisan migrate
+php artisan migrate:fresh --seed
 ```
 
 ## Configuration

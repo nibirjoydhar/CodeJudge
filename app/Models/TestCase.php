@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TestCase extends Model
 {
@@ -15,19 +14,15 @@ class TestCase extends Model
         'input',
         'expected_output',
         'is_sample',
-        'points'
+        'points',
     ];
 
     protected $casts = [
-        'is_sample' => 'boolean',
-        'points' => 'integer'
+        'is_sample' => 'boolean', // Cast to boolean for easier handling
     ];
 
-    /**
-     * Get the problem that owns the test case.
-     */
-    public function problem(): BelongsTo
+    public function problem()
     {
         return $this->belongsTo(Problem::class);
     }
-} 
+}
