@@ -83,7 +83,7 @@ MIT License - feel free to use this code however you want, just give me credit w
 - Email: [nibirjoydhar@gmail.com](mailto:nibirjoydhar@gmail.com)
 - LinkedIn: [linkedin.com/in/nibirjoydhar](https://linkedin.com/in/nibirjoydhar)
 - GitHub: [github.com/nibirjoydhar](https://github.com/nibirjoydhar)
-- Portfolio: [nibirjoydhar.github.io/he-portfolio](https://nibirjoydhar.github.io/he-portfolio)
+- Portfolio: [nibirjoydhar.github.io/he-portfolio](https://nibirjoydhar.github.io/he)
 
 ---
 
